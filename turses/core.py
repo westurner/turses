@@ -150,7 +150,16 @@ class KeyHandler(object):
 
     def handle(self, key):
         """Handle keyboard input."""
-        command = self.command(key)
+        # Handle scroll events as normal key presses
+        if len(key) >= 2 and key[0] == 'mouse press':
+            if key[1] == 4:
+                command = 'up'
+                key = configuration.key_bindings[command][0]
+            elif key[1] == 5:
+                command = 'down'
+                key = configuration.key_bindings[command][0]
+        else:
+            command = self.command(key)
 
         # Editor mode -- don't interpret keypress as command
         if self.controller.is_in_editor_mode():
@@ -314,7 +323,7 @@ class Controller(Observer):
             handler = self.key_handler.handle
             self.loop = urwid.MainLoop(self.ui,
                                        configuration.palette,
-                                       handle_mouse=False,
+                                       handle_mouse=True,
                                        unhandled_input=handler)
 
             # Authenticate API just before starting main loop
